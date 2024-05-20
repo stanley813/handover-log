@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" />
+    <title>放射科交班记录</title>
+    <link href="/css/app.css" rel="stylesheet">
+    <style>
+        .handoverLogTable {
+            height: 350px;
+            border-radius: initial;
+        }
+
+        .select-style {
+            width: 100px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div style="position: fixed;">
+            <label style=" font-size: 13px;font-weight: bold;">变更角色</label>&nbsp
+            <select id="role" onchange="changeRole(this)" class="select-style">
+                <option selected="selected" value="0">医生</option>
+                <option value="1">CT技师</option>
+                <option value="2">普放技师</option>
+                <option value="3">MR技师</option>
+                <option value="4">护理</option>
+            </select>
+            <div style="padding:10px 0px;position: absolute;">
+                <button onclick="submitContent()">提交</button>
+                <button onclick="clearInput()">清除</button>
+                <button onclick="list()">列表</button>
+            </div>
+        </div>
+        <div style="position: fixed;right: 0px;">
+            <img style="width: 200px;" src="/img/qilu-hospital.png">
+        </div>
+    </div>
+    <div class="center">
+        <table class="handoverLogTable" border="1">
+            <tr>
+                <th colspan="2"><label id="tableTitle">医生交班记录</label>&nbsp</th>
+                <th colspan="2"><input id="userId" placeholder="记录者" /></th>
+            </tr>
+            <tr style="height: 100%;width: 100%;">
+                <td><textarea id="workStatus" placeholder="夜班工作情况及责任区安全巡查"></textarea></td>
+                <td>
+                    <table border="1" style="width: 100%;height: 100%;">
+                        <th colspan="2">巡查记录</th>
+                        <tr>
+                            <td>水电</td>
+                            <td> <input type="checkbox" id="c1" value="1">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>门窗</td>
+                            <td> <input type="checkbox" id="c2" value="2">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>设备</td>
+                            <td> <input type="checkbox" id="c3" value="4">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td><textarea id="dangerValue" placeholder="危急值"></textarea></td>
+                <td><textarea id="specialCase" placeholder="特殊情况说明（如：纠纷隐患、意外事件及其他特殊情况说明）"></textarea></td>
+            </tr>
+        </table>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script>
+
+        $(document).ready(function () {
+        })
+
+        function changeRole(e) {
+            var selectedText = $(e).find('option:selected').text();
+            $('#tableTitle').text(selectedText + "交班记录")
+        }
+        function submitContent() {
+
+            if (!$('#userId').val()) {
+                alert("必须输入记录者姓名")
+                $('#userId').css('background-color', '#d59494')
+                return false;
+            }
+
+            var msg = "确认提交？"
+            if (confirm(msg) != true) {
+                return false
+            }
+            $.ajax({
+                contentType: "application/json",
+                type: "post",
+                url: "/handoverLog/insert",
+                async: true,
+                data: JSON.stringify({
+                    userId: $('#userId').val(),
+                    role: $('#role').val(),
+                    workStatus: $('#workStatus').val(),
+                    patrolRecord: getSelected(),
+                    dangerValue: $('#dangerValue').val(),
+                    specialCase: $('#specialCase').val()
+                }),
+                success: function (json) {
+                    alert("保存成功")
+                    location.reload();
+                },
+                error: function (request, status, error) {
+                    console.log(error)
+                }
+            })
+        }
+        function clearInput() {
+            location.reload();
+        }
+        function list() {
+            window.location.href = '/list';
+        }
+        function getSelected() {
+            var v;
+            $('input:checkbox').each(function () {
+                if ($(this).prop('checked') == true) {
+                    if (!v)
+                        v = $(this).val()
+                    v = v | $(this).val()
+                }
+            });
+            return v;
+        }
+    </script>
+</body>
+
+</html>

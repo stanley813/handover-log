@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" />
+    <title>交班记录列表</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/datatables.min.css" rel="stylesheet">
+    <link href="/css/jquery.datetimepicker.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+    <style>
+        table.datatable {
+            width: 100% !important;
+        }
+
+        table.dataTable th.dt-type-numeric {
+            text-align: left
+        }
+
+        table.dataTable th.dt-type-date {
+            text-align: left
+        }
+
+        .modal-backdrop {
+            position: inherit;
+        }
+
+        .modal-body {
+            padding: 5px;
+        }
+
+        .modal-footer {
+            padding: 30px;
+        }
+
+        .select-style {
+            width: 100px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 3px;
+        }
+		
+		table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td{
+			text-align: center;
+		}
+		
+		table.dataTable th.dt-type-date{
+			text-align: center;
+		}
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div style="position: fixed;padding: 3px;">
+            <label style="font-size: 13px;font-weight: bold;">角色类型：</label>&nbsp
+            <select id="role" class="select-style">
+                <option selected="selected" value=""></option>
+                <option value="0">医生</option>
+                <option value="1">CT技师</option>
+                <option value="2">普放技师</option>
+                <option value="3">MR技师</option>
+                <option value="4">护理</option>
+            </select>
+            <label style="font-size: 13px;font-weight: bold;">批注状态：</label>&nbsp
+            <select id="isRemark" class="select-style">
+                <option selected="selected" value=""></option>
+                <option value="0">未批注</option>
+                <option value="1">已批注</option>
+            </select>
+            <label>记录者：</label><input id="userId" class="select-style">&nbsp
+            <label>开始时间：</label><input id="startTime" type="text" class="select-style">&nbsp
+            <label>结束时间：</label><input id="endTime" type="text" class="select-style">&nbsp
+            <div style="padding:10px 0px;position: absolute;">
+                <button onclick="reload()">搜索</button>
+                <button onclick="clearInput()">清除</button>
+                <button onclick="back()">返回</button>
+            </div>
+        </div>
+        <!-- <div class="center-column"><img src="/img/paifan-view.png"></div> -->
+        <div style="position: fixed;right: 0px;">
+            <img style="width: 200px;" src="/img/qilu-hospital.png">
+        </div>
+    </div>
+    <div class="center" style="padding:10px">
+        <table id="handoverLogTable" width="100%"></table>
+    </div>
+
+    <div class="modal" tabindex="-1" id="myModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    交班记录
+                </div>
+                <div class="modal-body">
+                    <div class="center">
+                        <table class="handoverLogTable" style="margin: initial;border-radius: initial;" border="1">
+                            <!-- <tr>
+                                <th colspan="2"><input id="" placeholder="记录者" /></th>
+                            </tr> -->
+                            <tr style="height:100%;width:100%;">
+                                <td><textarea id="workStatus" readonly></textarea></td>
+                                <td>
+                                    <table border="1" style="width: 100%;height: 100%;">
+                                        <th colspan="2">巡查记录</th>
+                                        <tr>
+                                            <td>水电</td>
+                                            <td> <input type="checkbox" id="c1" value="1" disabled>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>门窗</td>
+                                            <td> <input type="checkbox" id="c2" value="2" disabled>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>设备</td>
+                                            <td> <input type="checkbox" id="c3" value="4" disabled>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td><textarea id="dangerValue" readonly></textarea></td>
+                                <td><textarea id="specialCase" readonly></textarea></td>
+                            </tr>
+                            <tr style="height:100%;width:100%;">
+                                <td colspan="4"><textarea id="remark" style="height:5em;"
+                                        placeholder="请填写批注内容"></textarea></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="closeModal()">关闭</button>
+                    <button id="submitRemark" type="button" class="btn btn-primary"
+                        onclick="submitRemark()">确认批注</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/datatables.min.js"></script>
+    <script src="/js/jquery.datetimepicker.full.min.js"></script>
+    <script>
+
+        var myModal = new bootstrap.Modal(document.getElementById('myModal'), {})
+
+        $(document).ready(function () {
+            jQuery.datetimepicker.setLocale('zh');
+            $('#startTime').datetimepicker({ language: 'zh', timepicker: false, format: 'Y-m-d' });
+            $('#endTime').datetimepicker({ language: 'zh', timepicker: false, format: 'Y-m-d' });
+
+            var table = $('#handoverLogTable').dataTable({
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                searching: false,
+                scrollX: false,
+                ajax: {
+                    url: '/handoverLog/list',
+                    contentType: "application/json",
+                    type: 'POST',
+                    dataType: "json",
+                    data: function (d) {
+                        d.userId = $("#userId").val()
+                        d.role = $("#role").val()
+                        d.isRemark = $("#isRemark").val()
+                        if ($("#startTime").val())
+                            d.startTime = $("#startTime").val() + ' 00:00:00';
+                        if ($("#endTime").val())
+                            d.endTime = $("#endTime").val() + " 23:59:59";
+                        return JSON.stringify(d)
+                    }
+                },
+                columns: [
+                    { data: 'role', title: '角色' },
+                    { data: 'userId', title: '记录者' },
+                    { data: 'logTime', title: '检查时间' },
+                    {
+                        title: '操作'
+                    }
+                ],
+                columnDefs: [
+                    {
+                        targets: 0,
+                        render: function (data, type, row, meta) {
+                            if (data == 0) {
+                                data = '医生'
+                            } else if (data == 1) {
+                                data = 'CT技师'
+                            } else if (data == 2) {
+                                data = '普放技师'
+                            } else if (data == 3) {
+                                data = 'MR技师'
+                            } else if (data == 4) {
+                                data = '护理'
+                            } else {
+                                data = '--'
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        targets: 3,
+                        render: function (data, type, row, meta) {
+                            var operationName = "批注"
+                            if (row.remark)
+                                operationName = "查看"
+                            return '<a onclick="show(' + JSON.stringify(row).replace(/"/g, '&quot;') + ')">' + operationName + '</a>';
+                        }
+                    }
+                ],
+                language: {
+                    "sProcessing": "处理中...",
+                    "sLengthMenu": "显示 _MENU_ 项结果",
+                    "sZeroRecords": "没有匹配结果",
+                    "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                    "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                    "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                    "sInfoPostFix": "",
+                    "sUrl": "",
+                    "sEmptyTable": "表中数据为空",
+                    "sLoadingRecords": "载入中...",
+                    "sInfoThousands": ",",
+                    "oPaginate": {
+                        "sFirst": "首页",
+                        "sPrevious": "上页",
+                        "sNext": "下页",
+                        "sLast": "末页"
+                    }
+                }
+            });
+        })
+
+        function reload() {
+            $('#handoverLogTable').DataTable().ajax.reload();
+        }
+        function clearInput() {
+            $('input').val('');
+            $('#role').val('');
+			$('#isRemark').val('')
+        }
+        function show(row) {
+            if (row.workStatus)
+                $('#workStatus').text(row.workStatus)
+            if (row.dangerValue)
+                $('#dangerValue').text(row.dangerValue)
+            if (row.specialCase)
+                $('#specialCase').text(row.specialCase)
+            if (row.patrolRecord) {
+                if ((row.patrolRecord & 1) > 0)
+                    $('#c1').prop('checked', true)
+                if ((row.patrolRecord & 2) > 0)
+                    $('#c2').prop('checked', true)
+                if ((row.patrolRecord & 4) > 0)
+                    $('#c3').prop('checked', true)
+            }
+            if (row.remark) {
+                $('#remark').text(row.remark)
+                $('#submitRemark').css('display', 'none')
+                $('#remark').prop('readonly', true);
+
+            } else {
+                $('#submitRemark').attr('name', row.id)
+            }
+            myModal.show()
+        }
+        function back() {
+            window.location.href = '/';
+        }
+        function closeModal() {
+            $(".modal-body").load(location.href + " .modal-body");
+            $('#submitRemark').css('display', '')
+        }
+        function submitRemark() {
+
+            if (!$('#remark').val()) {
+                alert("必须输入批注内容")
+                return false;
+            }
+            var msg = "确认提交？"
+            if (confirm(msg) != true) {
+                return false
+            }
+            $.ajax({
+                contentType: "application/json",
+                type: "post",
+                url: "/handoverLog/remark",
+                async: true,
+                data: JSON.stringify({
+                    id: $('#submitRemark').attr('name'),
+                    remark: $('#remark').val()
+                }),
+                success: function (json) {
+                    alert("保存成功")
+                    location.reload();
+                },
+                error: function (request, status, error) {
+                    console.log(error)
+                }
+            })
+
+        }
+
+    </script>
+</body>
+
+</html>

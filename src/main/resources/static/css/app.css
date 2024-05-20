@@ -1,0 +1,168 @@
+@charset "utf-8";
+
+
+.header {
+    text-align: center;
+    width: 100%;
+    height: 50px;
+}
+
+.center {
+    width: 100%;
+    height: 300px;
+    margin-top: 10px;
+    display: inline-block;
+    text-align: center;
+}
+
+
+.handoverLogTable {
+    margin: 1em 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #FFF;
+    color: #024457;
+    border-radius: 10px;
+    border: 1px solid #167F92;
+}
+
+.handoverLogTable tr {
+    border: 1px solid #D9E4E6;
+}
+
+/* .handoverLogTable tr:nth-child(odd) {
+    background-color: #EAF3F3;
+} */
+
+.handoverLogTable th {
+    display: none;
+    /* border: 1px solid #FFF; */
+    /* background-color: #167F92; */
+    /* color: #FFF; */
+    padding: 1em;
+}
+
+.handoverLogTable th:first-child {
+    display: table-cell;
+    text-align: center;
+}
+
+.handoverLogTable th:nth-child(2) {
+    display: table-cell;
+}
+
+.handoverLogTable th:nth-child(2) span {
+    display: none;
+}
+
+.handoverLogTable th:nth-child(2):after {
+    content: attr(data-th);
+}
+
+@media (min-width: 480px) {
+    .handoverLogTable th:nth-child(2) span {
+        display: block;
+    }
+
+    .handoverLogTable th:nth-child(2):after {
+        display: none;
+    }
+}
+
+.handoverLogTable td {
+    display: block;
+    word-wrap: break-word;
+    max-width: 7em;
+}
+
+.handoverLogTable td:first-child {
+    display: table-cell;
+    text-align: center;
+    border-right: 1px solid #D9E4E6;
+}
+
+@media (min-width: 480px) {
+    .handoverLogTable td {
+        border: 1px solid #D9E4E6;
+    }
+}
+
+.handoverLogTable th,
+.handoverLogTable td {
+    text-align: left;
+    margin: .5em 1em;
+}
+
+.handoverLogTable input {
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    /* 确保padding和border不会影响宽度 */
+}
+
+.handoverLogTable td input {
+    padding: 10%;
+}
+
+
+@media (min-width: 480px) {
+
+    .handoverLogTable th,
+    .handoverLogTable td {
+        display: table-cell;
+        padding: 1em;
+    }
+}
+
+body {
+    /* padding: 0 2em; */
+    font-family: Arial, sans-serif;
+    color: #024457;
+    /* background: #f2f2f2; */
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+td input {
+    width: 100%;
+    /* 使输入框宽度占据整个单元格 */
+    height: 100%;
+    /* 使输入框高度占据整个单元格 */
+    box-sizing: border-box;
+    /* 确保边框和内边距包含在宽度和高度内 */
+    padding: 0;
+    border: none;
+    /* 移除边框 */
+    outline: none;
+    /* 移除点击输入框时出现的轮廓 */
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    resize: none;
+    overflow: auto;
+}
+
+button {
+    background-color: black;
+    color: white;
+    padding: 4px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    cursor: pointer;
+}
