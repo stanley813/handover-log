@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" />
@@ -25,7 +24,7 @@
 
 <body>
     <div class="header">
-        <div style="position: fixed;">
+        <div style="position: absolute;top:0px">
             <label style=" font-size: 13px;font-weight: bold;">变更角色</label>&nbsp
             <select id="role" onchange="changeRole(this)" class="select-style">
                 <option selected="selected" value="0">医生</option>
@@ -40,7 +39,10 @@
                 <button onclick="list()">列表</button>
             </div>
         </div>
-        <div style="position: fixed;right: 0px;">
+        <div style="position: initial;">
+            <h1>放射科交班记录</h1>
+        </div>
+        <div style="position: absolute;right: 0px;top:0px">
             <img style="width: 200px;" src="/img/qilu-hospital.png">
         </div>
     </div>
