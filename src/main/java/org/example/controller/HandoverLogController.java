@@ -66,10 +66,12 @@ public class HandoverLogController {
                 queryWrapper.lambda().ge(HandoverLog::getLogTime, handoverLog.getStartTime());
             if (handoverLog.getEndTime() != null)
                 queryWrapper.lambda().le(HandoverLog::getLogTime, handoverLog.getEndTime());
-            if (handoverLog.getIsRemark() != null){
-                if (handoverLog.getIsRemark() == 1){
+            if (handoverLog.getShift() != null)
+                queryWrapper.lambda().eq(HandoverLog::getShift, handoverLog.getShift());
+            if (handoverLog.getIsRemark() != null) {
+                if (handoverLog.getIsRemark() == 1) {
                     queryWrapper.lambda().isNotNull(HandoverLog::getRemark);
-                }else if(handoverLog.getIsRemark() == 0){
+                } else if (handoverLog.getIsRemark() == 0) {
                     queryWrapper.lambda().isNull(HandoverLog::getRemark);
                 }
             }
@@ -77,7 +79,6 @@ public class HandoverLogController {
             Page<HandoverLog> page = new Page<>(start, length);
 
             IPage<HandoverLog> result = handoverLogService.page(page, queryWrapper);
-
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("recordsFiltered", result.getTotal());
             jsonObject.put("recordsTotal", result.getTotal());

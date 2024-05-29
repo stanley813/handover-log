@@ -42,14 +42,17 @@
             font-size: 16px;
             margin: 3px;
         }
-		
-		table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td{
-			text-align: center;
-		}
-		
-		table.dataTable th.dt-type-date{
-			text-align: center;
-		}
+
+        table.dataTable thead th,
+        table.dataTable thead td,
+        table.dataTable tfoot th,
+        table.dataTable tfoot td {
+            text-align: center;
+        }
+
+        table.dataTable th.dt-type-date {
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -64,6 +67,12 @@
                 <option value="2">普放技师</option>
                 <option value="3">MR技师</option>
                 <option value="4">护理</option>
+            </select>
+            <label style="font-size: 13px;font-weight: bold;">班次：</label>&nbsp
+            <select id="shift" class="select-style">
+                <option selected="selected" value=""></option>
+                <option value="1">白班</option>
+                <option value="0">夜班</option>
             </select>
             <label style="font-size: 13px;font-weight: bold;">批注状态：</label>&nbsp
             <select id="isRemark" class="select-style">
@@ -127,8 +136,9 @@
                                 <td><textarea id="specialCase" readonly></textarea></td>
                             </tr>
                             <tr style="height:100%;width:100%;">
-                                <td colspan="4"><textarea id="remark" style="height:5em;"
+                                <td colspan="3"><textarea id="remark" style="height:5em;"
                                         placeholder="请填写批注内容"></textarea></td>
+                                <td colspan="1"><label>批注人：</label><input id="remarkUserId" class="select-style"></td>
                             </tr>
                         </table>
                     </div>
@@ -169,6 +179,7 @@
                     data: function (d) {
                         d.userId = $("#userId").val()
                         d.role = $("#role").val()
+                        d.shift = $("#shift").val()
                         d.isRemark = $("#isRemark").val()
                         if ($("#startTime").val())
                             d.startTime = $("#startTime").val() + ' 00:00:00';
@@ -180,6 +191,7 @@
                 columns: [
                     { data: 'role', title: '角色' },
                     { data: 'userId', title: '记录者' },
+                    { data: 'shift', title: '班次' },
                     { data: 'logTime', title: '检查时间' },
                     {
                         title: '操作'
@@ -206,7 +218,20 @@
                         }
                     },
                     {
-                        targets: 3,
+                        targets: 2,
+                        render: function (data, type, row, meta) {
+                            if (data == 0) {
+                                data = '夜班'
+                            } else if (data == 1) {
+                                data = '白班'
+                            } else {
+                                data = '--'
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        targets: 4,
                         render: function (data, type, row, meta) {
                             var operationName = "批注"
                             if (row.remark)
@@ -243,7 +268,8 @@
         function clearInput() {
             $('input').val('');
             $('#role').val('');
-			$('#isRemark').val('')
+            $('#isRemark').val('')
+            $('#shift').val('')
         }
         function show(row) {
             if (row.workStatus)
@@ -262,9 +288,10 @@
             }
             if (row.remark) {
                 $('#remark').text(row.remark)
+                $('#remarkUserId').val(row.remarkUserId)
                 $('#submitRemark').css('display', 'none')
                 $('#remark').prop('readonly', true);
-
+                $('#remarkUserId').prop('readonly', true)
             } else {
                 $('#submitRemark').attr('name', row.id)
             }
@@ -283,6 +310,11 @@
                 alert("必须输入批注内容")
                 return false;
             }
+            if (!$('#remarkUserId').val()) {
+                alert("必须输入批注人")
+                $('#remarkUserId').css('background-color', '#d59494')
+                return false;
+            }
             var msg = "确认提交？"
             if (confirm(msg) != true) {
                 return false
@@ -294,7 +326,8 @@
                 async: true,
                 data: JSON.stringify({
                     id: $('#submitRemark').attr('name'),
-                    remark: $('#remark').val()
+                    remark: $('#remark').val(),
+                    remarkUserId: $('#remarkUserId').val()
                 }),
                 success: function (json) {
                     alert("保存成功")

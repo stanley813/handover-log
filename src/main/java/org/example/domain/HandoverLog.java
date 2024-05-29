@@ -27,6 +27,9 @@ public class HandoverLog {
     private Integer patrolRecord;
     private String dangerValue;
     private String specialCase;
+    private Integer shift;
+    private String remarkUserId;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date LogTime;
 

@@ -33,6 +33,12 @@
                 <option value="3">MR技师</option>
                 <option value="4">护理</option>
             </select>
+            &nbsp&nbsp
+            <label style=" font-size: 13px;font-weight: bold;">班次</label>&nbsp
+            <select id="shift" class="select-style">
+                <option selected="selected" value="1">白班</option>
+                <option value="0">夜班</option>
+            </select>
             <div style="padding:10px 0px;position: absolute;">
                 <button onclick="submitContent()">提交</button>
                 <button onclick="clearInput()">清除</button>
@@ -41,7 +47,7 @@
         </div>
         <div style="position: initial;">
             <h1>放射科交班记录</h1>
-            
+
         </div>
         <div style="position: absolute;right: 0px;top:0px">
             <img style="width: 200px;" src="/img/qilu-hospital.png">
@@ -113,7 +119,8 @@
                     workStatus: $('#workStatus').val(),
                     patrolRecord: getSelected(),
                     dangerValue: $('#dangerValue').val(),
-                    specialCase: $('#specialCase').val()
+                    specialCase: $('#specialCase').val(),
+                    shift: $('#shift').val()
                 }),
                 success: function (json) {
                     alert("保存成功")
